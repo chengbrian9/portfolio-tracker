@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Heading,
@@ -9,12 +9,16 @@ import {
   Text,
   CardFooter,
   Button,
+  Link,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
+
 interface Account {
   accountNumber: string;
   name: string;
   balance: number;
 }
+
 const accounts: Account[] = [
   {
     accountNumber: "1234567890",
@@ -32,8 +36,18 @@ const accounts: Account[] = [
     balance: 3000.0,
   },
 ];
-
+const axios = require('axios');
+const accessToken = 'your-access-token';
+const accountIds = '12345,67890';
+const config = {
+  headers: {
+    Authorization: `Bearer ${accessToken}`
+  }
+};
 const Home = () => {
+  useEffect(() => {
+    fetch('https://api.tdameritrade.com/v1/accounts/balances')
+  })
   return (
     <Box p={4}>
       <Heading as="h1">Account Balances</Heading>
@@ -47,9 +61,7 @@ const Home = () => {
               <Heading size="md"> {account.name} </Heading>
             </CardHeader>
             <CardBody>
-              <Text>
-                ${account.balance}
-              </Text>
+              <Text>${account.balance}</Text>
             </CardBody>
             <CardFooter>
               <Button>View here</Button>
@@ -57,6 +69,9 @@ const Home = () => {
           </Card>
         ))}
       </SimpleGrid>
+      <NextLink href="/transactions" passHref>
+        <Link>Transactions</Link>
+      </NextLink>
     </Box>
   );
 };
