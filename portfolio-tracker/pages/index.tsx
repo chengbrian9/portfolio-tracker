@@ -1,6 +1,21 @@
 import React from "react";
-import { Box, Heading, Card, CardHeader, CardBody } from "@chakra-ui/react";
-const accounts = [
+import {
+  Box,
+  Heading,
+  Card,
+  CardHeader,
+  CardBody,
+  SimpleGrid,
+  Text,
+  CardFooter,
+  Button,
+} from "@chakra-ui/react";
+interface Account {
+  accountNumber: string;
+  name: string;
+  balance: number;
+}
+const accounts: Account[] = [
   {
     accountNumber: "1234567890",
     name: "Checking Account",
@@ -22,20 +37,26 @@ const Home = () => {
   return (
     <Box p={4}>
       <Heading as="h1">Account Balances</Heading>
-      {accounts.map(account => (
-        <Card key={account.accountNumber} mt={4}>
-          <CardHeader>
-            <Heading as="h2" size="lg">
-              {account.name}
-            </Heading>
-          </CardHeader>
-          <CardBody>
-            <Heading as="h3" size="lg">
-              {account.balance}
-            </Heading>
-          </CardBody>
-        </Card>
-      ))}
+      <SimpleGrid
+        spacing={4}
+        templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+      >
+        {accounts.map((account) => (
+          <Card key={account.accountNumber}>
+            <CardHeader>
+              <Heading size="md"> {account.name} </Heading>
+            </CardHeader>
+            <CardBody>
+              <Text>
+                ${account.balance}
+              </Text>
+            </CardBody>
+            <CardFooter>
+              <Button>View here</Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </SimpleGrid>
     </Box>
   );
 };
