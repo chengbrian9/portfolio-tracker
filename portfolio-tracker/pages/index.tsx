@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Heading,
@@ -12,42 +12,38 @@ import {
   Link,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-
-interface Account {
-  accountNumber: string;
-  name: string;
-  balance: number;
-}
-
-const accounts: Account[] = [
-  {
-    accountNumber: "1234567890",
-    name: "Checking Account",
-    balance: 1000.0,
-  },
-  {
-    accountNumber: "0987654321",
-    name: "Savings Account",
-    balance: 2000.0,
-  },
-  {
-    accountNumber: "1357924680",
-    name: "Investment Account",
-    balance: 3000.0,
-  },
-];
 const axios = require('axios');
-const accessToken = 'your-access-token';
-const accountIds = '12345,67890';
-const config = {
+const options = {
   headers: {
-    Authorization: `Bearer ${accessToken}`
+    'Content-Type': 'application/x-www-form-urlencoded'
   }
+}
+const data = {
+    grant_type: 'refresh_token',
+    refresh_token: process.env.NEXT_PUBLIC_REF_TOKEN,
+    client_id: process.env.NEXT_PUBLIC_CLIENT_ID,
 };
 const Home = () => {
+  const [accounts, setAccounts] = useState<any>([])
   useEffect(() => {
-    fetch('https://api.tdameritrade.com/v1/accounts/balances')
-  })
+    axios.post('https://api.tdameritrade.com/v1/oauth2/token', data, options)
+    .then(response => {
+      const accessToken = response.data.access_token
+      const params = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+      axios.get('https://api.tdameritrade.com/v1/accounts', params)
+      .then(response => {
+        const accounts = response.data;
+        setAccounts(accounts)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    })}, [])
+    
   return (
     <Box p={4}>
       <Heading as="h1">Account Balances</Heading>
@@ -55,19 +51,20 @@ const Home = () => {
         spacing={4}
         templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
       >
-        {accounts.map((account) => (
-          <Card key={account.accountNumber}>
+        {accounts ? accounts.map((account) => (
+          <Card key={account.securitiesAccount.accountId}>
             <CardHeader>
-              <Heading size="md"> {account.name} </Heading>
+              <Heading size="md"> TD {account.securitiesAccount.accountId}</Heading>
             </CardHeader>
             <CardBody>
-              <Text>${account.balance}</Text>
+              <Text>${account.securitiesAccount.initialBalances.accountValue}</Text>
             </CardBody>
             <CardFooter>
               <Button>View here</Button>
             </CardFooter>
           </Card>
-        ))}
+        )) : <Card></Card>
+      }
       </SimpleGrid>
       <NextLink href="/transactions" passHref>
         <Link>Transactions</Link>
